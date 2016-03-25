@@ -3,25 +3,91 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:LeapDroneController"
+        xmlns:models="clr-namespace:LeapDroneController.Models"
         mc:Ignorable="d"
+        xmlns:converters="clr-namespace:LeapDroneController.Converters"
         Title="MainWindow" Height="350" Width="525">
+    <d:Window.DataContext>
+        <models:DroneData/>
+    </d:Window.DataContext>
+    <Window.Resources>
+        <converters:CentreConverter x:Key="CentreConverter"/>
+    </Window.Resources>
     <Grid>
-        <DockPanel Dock="Right">
-            <StackPanel>
-                <Button x:Name="btnFly" Click="BtnFly_OnClick">Fly</Button>
-                <Button x:Name="btnFinish" Click="BtnFinish_OnClick">Stop</Button>
-                <Label>X</Label>
-                <TextBlock Text="{Binding XAxisValue}"/>
-                <Label>Y</Label>
-                <TextBlock Text="{Binding YAxisValue}"/>
-                <Label>Z</Label>
-                <TextBlock Text="{Binding ZAxisValue}"/>
+        <DockPanel>
+            <StackPanel DockPanel.Dock="Right">
+                <Button x:Name="BtnFly" Click="BtnFly_OnClick">Fly</Button>
+                <Button x:Name="BtnFinish" Click="BtnFinish_OnClick">Stop</Button>
+                <Label>LeftRightAngle</Label>
+                <TextBlock Text="{Binding LeftRightAngle}"/>
+                <Label>Thrust</Label>
+                <TextBlock Text="{Binding Thrust}"/>
+                <Label>ForwardBackwardAngle</Label>
+                <TextBlock Text="{Binding ForwardBackwardAngle}"/>
                 <Label>Heading</Label>
                 <TextBlock Text="{Binding Heading}"/>
                 <Label>Action</Label>
                 <TextBlock Text="{Binding CurrentAction}"/>
             </StackPanel>
+            <Grid Margin="0 0 30 30">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Label>Drone Status</Label>
+                <Label Grid.Row="1" Grid.Column="0">Left vs Right</Label>
+                <Label Grid.Row="1" Grid.Column="1">Forward vs Backward</Label>
+                <Label Grid.Row="3" Grid.Column="0">Thrust</Label>
+                <Label Grid.Row="3" Grid.Column="1">Heading</Label>
+
+                <Image x:Name="LeftRightImage" Grid.Row="2" Grid.Column="0"
+                       Source="Images/DroneLevel.png">
+                    <Image.RenderTransform>
+                        <RotateTransform Angle="{Binding LeftRightAngle}">
+                            <RotateTransform.CenterX>
+                                <Binding ElementName="LeftRightImage" Path="ActualWidth" Converter="{StaticResource CentreConverter}" />
+                            </RotateTransform.CenterX>
+                            <RotateTransform.CenterY>
+                                <Binding ElementName="LeftRightImage" Path="ActualHeight" Converter="{StaticResource CentreConverter}" />
+                            </RotateTransform.CenterY>
+                        </RotateTransform>
+                    </Image.RenderTransform>
+                </Image>
+                <Image x:Name="ForwardBackwardImage" Grid.Row="2" Grid.Column="1"
+                       Source="Images/DroneLevel.png">
+                    <Image.RenderTransform>
+                        <RotateTransform Angle="{Binding ForwardBackwardAngle}">
+                            <RotateTransform.CenterX>
+                                <Binding ElementName="ForwardBackwardImage" Path="ActualWidth" Converter="{StaticResource CentreConverter}" />
+                            </RotateTransform.CenterX>
+                            <RotateTransform.CenterY>
+                                <Binding ElementName="ForwardBackwardImage" Path="ActualHeight" Converter="{StaticResource CentreConverter}" />
+                            </RotateTransform.CenterY>
+                        </RotateTransform>
+                    </Image.RenderTransform>
+                </Image>
+                
+                <Image x:Name="HeadingImage" Grid.Row="4" Grid.Column="1"
+                       Source="Images/DroneAbove.png">
+                    <Image.RenderTransform>
+                        <RotateTransform Angle="{Binding Heading}">
+                            <RotateTransform.CenterX>
+                                <Binding ElementName="HeadingImage" Path="ActualWidth" Converter="{StaticResource CentreConverter}" />
+                            </RotateTransform.CenterX>
+                            <RotateTransform.CenterY>
+                                <Binding ElementName="HeadingImage" Path="ActualHeight" Converter="{StaticResource CentreConverter}" />
+                            </RotateTransform.CenterY>
+                        </RotateTransform>
+                    </Image.RenderTransform>
+                </Image>
+            </Grid>
         </DockPanel>
     </Grid>
 </Window>

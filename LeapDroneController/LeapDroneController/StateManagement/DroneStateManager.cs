@@ -78,10 +78,9 @@ namespace LeapDroneController.StateManagement
             Vector lhv = leftHand.PalmPosition;
             Vector rhv = rightHand.PalmPosition;
 
-            DroneData.SetValues(lhv,rhv);
+            DroneData.UpdateGesture(lhv,rhv);
 
             //Set Variables or safe
         }
-
     }
 }

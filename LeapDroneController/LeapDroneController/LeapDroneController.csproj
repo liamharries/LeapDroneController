@@ -60,6 +60,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Config\ConfigData.cs" />
+    <Compile Include="Converters\CentreConverter.cs" />
     <Compile Include="Models\DroneData.cs" />
     <Compile Include="Models\LeapItem.cs" />
     <Compile Include="Properties\Annotations.cs" />
@@ -104,6 +105,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\DroneLevel.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\DroneAbove.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

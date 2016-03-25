@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Leap;
 using LeapDroneController.Annotations;
+using LeapDroneController.Config;
 using LeapDroneController.StateManagement;
 
 namespace LeapDroneController.Models
@@ -20,17 +21,12 @@ namespace LeapDroneController.Models
         Hover
     }
 
-    public class DroneData:INotifyPropertyChanged
+    public class DroneData : INotifyPropertyChanged
     {
-        public DroneData()
-        {
-            XAxisState = XAxisState.Stable;
-            YAxisState = YAxisState.Stable;
-            ZAxisState = ZAxisState.Stable;
-            XAxisValue = 0;
-            YAxisValue = 0;
-            ZAxisValue = 0;
-        }
+        private decimal _leftRightAngle;
+        private decimal _thrust;
+        private decimal _forwardsBackwardsAngle;
+        private decimal _heading;
 
         private Action _currentAction = Action.Hover;
 
@@ -40,7 +36,7 @@ namespace LeapDroneController.Models
             private set
             {
                 _currentAction = value;
-                OnPropertyChanged(nameof(CurrentAction));
+                OnPropertyChanged();
             }
         }
 
@@ -52,43 +48,165 @@ namespace LeapDroneController.Models
 
         public HeadingState HeadingState { get; private set; }
 
-        public float XAxisValue { get; private set; }
+        public decimal LeftRightAngle
+        {
+            get { return _leftRightAngle; }
+            private set
+            {
+                _leftRightAngle = value;
+                OnPropertyChanged();
+            }
+        }
 
-        public float YAxisValue { get; private set; }
+        public decimal Thrust
+        {
+            get { return _thrust; }
+            private set
+            {
+                _thrust = value;
+                OnPropertyChanged();
+            }
+        }
 
-        public float ZAxisValue { get; private set; }
+        public decimal ForwardBackwardAngle
+        {
+            get { return _forwardsBackwardsAngle; }
+            private set
+            {
+                _forwardsBackwardsAngle = value;
+                OnPropertyChanged();
+            }
+        }
 
-        public float HeadingValue { get; private set; }
+        public decimal Heading
+        {
+            get { return _heading; }
+            private set
+            {
+                _heading = value;
+                OnPropertyChanged();
+            }
+        }
 
         public void SetSafe()
         {
-            XAxisState = XAxisState.Stable;
-            YAxisState = YAxisState.Stable;
-            ZAxisState = ZAxisState.Stable;
-            XAxisValue = 0;
-            YAxisValue = 0;
-            ZAxisValue = 0;
+            CurrentAction = Action.Hover;
+            UpdateValues();
         }
 
-        public void SetValues(Vector leftHandVector, Vector rightHandVector)
+        public void UpdateGesture(Vector leftHandVector, Vector rightHandVector)
         {
             float xValue = leftHandVector.y - rightHandVector.y;
             float yValue = (leftHandVector.y + rightHandVector.y) / 2 - 150;
-            float zValue = (leftHandVector.z + rightHandVector.z)/2 - 50;
+            float zValue = (leftHandVector.z + rightHandVector.z) / 2 - 50;
             float headingValue = rightHandVector.z - leftHandVector.z;
 
-            XAxisValue = xValue;
-            YAxisValue = yValue;
-            ZAxisValue = zValue;
-            HeadingValue = headingValue;
+            CalculateGesture(xValue, yValue, zValue, headingValue);
 
-            OnPropertyChanged(nameof(XAxisValue));
-            OnPropertyChanged(nameof(YAxisValue));
-            OnPropertyChanged(nameof(ZAxisValue));
-            OnPropertyChanged(nameof(HeadingValue));
-
-            CalculateGesture(XAxisValue, YAxisValue, ZAxisValue, HeadingValue);
+            UpdateValues();
         }
+
+        #region ValueUpdate
+
+        private void UpdateValues()
+        {
+            UpdateLeftRightAngle();
+            UpdateForwardBackwardAngle();
+            UpdateThrust();
+            UpdateHeading();
+        }
+
+        private void UpdateLeftRightAngle()
+        {
+            decimal val;
+            switch (CurrentAction)
+            {
+                case Action.Left:
+                    val = LeftRightAngle - ConfigData.LeftRightAngleChange;
+                    LeftRightAngle = val < 0 - ConfigData.MaxLeftRightAngle ? 0 - ConfigData.MaxLeftRightAngle : val;
+                    break;
+                case Action.Right:
+                    val = LeftRightAngle + ConfigData.LeftRightAngleChange;
+                    LeftRightAngle = val > ConfigData.MaxLeftRightAngle ? ConfigData.MaxLeftRightAngle : val;
+                    break;
+                default:
+                    LeftRightAngle = 0;
+                    break;
+            }
+        }
+
+        private void UpdateForwardBackwardAngle()
+        {
+            decimal val;
+            switch (CurrentAction)
+            {
+                case Action.Forwards:
+                    val = ForwardBackwardAngle + ConfigData.ForwardBackwardAngleChange;
+                    ForwardBackwardAngle = val > ConfigData.MaxForwardBackAngle ? ConfigData.MaxForwardBackAngle : val;
+                    break;
+                case Action.Backwards:
+                    val = ForwardBackwardAngle - ConfigData.ForwardBackwardAngleChange;
+                    ForwardBackwardAngle = val < 0 - ConfigData.MaxForwardBackAngle ? 0 - ConfigData.MaxForwardBackAngle : val;
+                    break;
+                default:
+                    ForwardBackwardAngle = 0;
+                    break;
+            }
+        }
+
+        private void UpdateThrust()
+        {
+            decimal val;
+            switch (CurrentAction)
+            {
+                case Action.Up:
+                    val = Thrust + ConfigData.ThrustValueChange;
+                    Thrust = val > ConfigData.MaxThrust ? ConfigData.MaxThrust : val;
+                    break;
+                case Action.Down:
+                    val = Thrust - ConfigData.ThrustValueChange;
+                    Thrust = val < ConfigData.MinThrust ? ConfigData.MinThrust : val;
+                    break;
+                default:
+                    Thrust = ConfigData.HoverThrust;
+                    break;
+            }
+        }
+
+        private void UpdateHeading()
+        {
+            switch (CurrentAction)
+            {
+                case Action.Clockwise:
+                    {
+                        decimal val = Heading + ConfigData.HeadingValueChange;
+                        if (val >= 360)
+                        {
+                            Heading = val - 360;
+                        }
+                        else
+                        {
+                            Heading = val;
+                        }
+                    }
+                    break;
+                case Action.AntiClockwise:
+                    {
+                        decimal val = Heading - ConfigData.HeadingValueChange;
+                        if (val < 0)
+                        {
+                            Heading = 360 - Math.Abs(val);
+                        }
+                        else
+                        {
+                            Heading = val;
+                        }
+                    }
+                    break;
+            }
+        }
+
+        #endregion//ValueUpdate
 
         private void CalculateGesture(float xValue, float yValue, float zValue, float heading)
         {
@@ -107,7 +225,7 @@ namespace LeapDroneController.Models
                     CurrentAction = Action.Right;
                     return;
                 }
-                Hover();
+                CurrentAction = Action.Hover;
                 return;
             }
             //Check for yValue as gesture source.
@@ -125,7 +243,7 @@ namespace LeapDroneController.Models
                     CurrentAction = Action.Up;
                     return;
                 }
-                Hover();
+                CurrentAction = Action.Hover;
                 return;
             }
             //Check for zValue as gesture source.
@@ -143,7 +261,7 @@ namespace LeapDroneController.Models
                     CurrentAction = Action.Backwards;
                     return;
                 }
-                Hover();
+                CurrentAction = Action.Hover;
                 return;
             }
 
@@ -158,15 +276,9 @@ namespace LeapDroneController.Models
                 CurrentAction = Action.Clockwise;
                 return;
             }
-            Hover();
-        }
-
-        private void Hover()
-        {
             CurrentAction = Action.Hover;
-            //X and Z angles need to be reset
         }
-
+        
         public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
