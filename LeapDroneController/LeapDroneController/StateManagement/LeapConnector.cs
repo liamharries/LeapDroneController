@@ -84,7 +84,9 @@ namespace LeapDroneController.StateManagement
             DroneStateManager.SetDroneToSafe();
             FrameLoadTimer.Stop();
             MessageBox.Show(
-                "Controller not connected, please connect you Leap Motion device and ensure the Leap service is running",
+                "Controller not connected! \n" +
+                "Please ensure your Leap Motion device is connected" +
+                "and the Leap service is running.",
                 "Controller Error!");
         }
     }

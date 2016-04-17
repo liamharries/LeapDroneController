@@ -27,6 +27,7 @@ namespace LeapDroneController.Models
         private decimal _thrust;
         private decimal _forwardsBackwardsAngle;
         private decimal _heading;
+        private bool _safeMode = true;
 
         private Action _currentAction = Action.Hover;
 
@@ -47,6 +48,21 @@ namespace LeapDroneController.Models
         public ZAxisState ZAxisState { get; private set; }
 
         public HeadingState HeadingState { get; private set; }
+
+        public bool SafeMode
+        {
+            get { return _safeMode; }
+            set
+            {
+                if (_safeMode == false && value == true)
+                {
+                    CurrentAction = Action.Hover;
+                    UpdateValues();
+                }
+                _safeMode = value;
+                OnPropertyChanged();
+            }
+        }
 
         public decimal LeftRightAngle
         {
@@ -88,14 +104,10 @@ namespace LeapDroneController.Models
             }
         }
 
-        public void SetSafe()
-        {
-            CurrentAction = Action.Hover;
-            UpdateValues();
-        }
-
         public void UpdateGesture(Vector leftHandVector, Vector rightHandVector)
         {
+            SafeMode = false;
+
             float xValue = leftHandVector.y - rightHandVector.y;
             float yValue = (leftHandVector.y + rightHandVector.y) / 2 - 150;
             float zValue = (leftHandVector.z + rightHandVector.z) / 2 - 50;
@@ -110,6 +122,7 @@ namespace LeapDroneController.Models
 
         private void UpdateValues()
         {
+            if(SafeMode)return;
             UpdateLeftRightAngle();
             UpdateForwardBackwardAngle();
             UpdateThrust();
@@ -278,7 +291,7 @@ namespace LeapDroneController.Models
             }
             CurrentAction = Action.Hover;
         }
-        
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]

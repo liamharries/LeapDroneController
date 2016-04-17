@@ -6,7 +6,7 @@
         xmlns:models="clr-namespace:LeapDroneController.Models"
         mc:Ignorable="d"
         xmlns:converters="clr-namespace:LeapDroneController.Converters"
-        Title="MainWindow" Height="350" Width="525">
+        Title="FlightDeck" Height="350" Width="525">
     <d:Window.DataContext>
         <models:DroneData/>
     </d:Window.DataContext>
@@ -29,6 +29,8 @@
                 <TextBlock Text="{Binding Heading}"/>
                 <Label>Action</Label>
                 <TextBlock Text="{Binding CurrentAction}"/>
+                <Label>Safe mode</Label>
+                <TextBlock Text="{Binding SafeMode}"/>
             </StackPanel>
             <Grid Margin="0 0 30 30">
                 <Grid.ColumnDefinitions>

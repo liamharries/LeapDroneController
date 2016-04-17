@@ -38,37 +38,16 @@ namespace LeapDroneController.StateManagement
 
     public static class DroneStateManager
     {
-        private static bool _userConnectionState;
-
         static DroneStateManager()
         {
-            IsFlying = false;
             DroneData = new DroneData();
         }
 
-        public static bool IsFlying { get; private set; }
-
         public static DroneData DroneData { get; set; }
-
-        public static bool UserConnectionState
-        {
-            get { return _userConnectionState; }
-            set
-            {
-                _userConnectionState = value;
-                if (!value)
-                {
-                    SetDroneToSafe();
-                }
-            }
-        }
 
         public static void SetDroneToSafe()
         {
-            if (IsFlying)
-            {
-                DroneData.SetSafe();
-            }
+            DroneData.SafeMode = true;
         }
 
         public static void Update(Hand leftHand, Hand rightHand)

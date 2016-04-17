@@ -13,6 +13,6 @@
         public static decimal MaxThrust { get; private set; } = 100;
         public static decimal MinThrust { get; private set; } = 5;
 
-        public static int ErrorToleranceBeforeSafeMode { get; private set; } = 20;
+        public static int ErrorToleranceBeforeSafeMode { get; private set; } = 10;
     }
 }
