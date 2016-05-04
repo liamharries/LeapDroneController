@@ -44,7 +44,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <Label>Drone Status</Label>
+                <Label>UAV Status</Label>
                 <Label Grid.Row="1" Grid.Column="0">Left vs Right</Label>
                 <Label Grid.Row="1" Grid.Column="1">Forward vs Backward</Label>
                 <Label Grid.Row="3" Grid.Column="0">Thrust</Label>
